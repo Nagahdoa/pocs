@@ -16,25 +16,45 @@ export const StyledClockFace = styled.div`
     width: 400px;
     background: rgb(225, 255, 212);
     border-radius: 50%;
-    display: flex;
-    align-items: center;
+    position: relative;
+`;
+
+const clockHand = `
+    background: black;
+    height: 180px;
+    transform: rotate(0deg);
+    transform-origin: 100% 100%;
+    position: absolute;
+    top: 20px;
+    left: 200px;
 `;
 
 export const StyledClockSecondsHand = styled.div`
-    background: black;
-    height: 1px;
-    width: 180px;
-    margin-left: 20px;
-    transform: rotate(0deg);
-    transform-origin: 100%;
+    ${clockHand}
+    width: 2px;    
+    ${({ rotation = 0 }) =>
+    css`
+        transform: rotate(${rotation}deg);
+    `};
 `;
 
+
 export const StyledClockMinutesHand = styled.div`
-    
+    ${clockHand}
+    width: 2px;    
+    ${({ rotation = 0 }) =>
+    css`
+        transform: rotate(${rotation}deg);
+    `};
 `;
 
 export const StyledClockHoursHand = styled.div`
-    
+    ${clockHand}
+    width: 2px;    
+    ${({ rotation = 0 }) =>
+    css`
+        transform: rotate(${rotation}deg);
+    `};
 `;
 
 // presentational components
@@ -57,13 +77,50 @@ Clock.HoursHand = ClockHoursHand;
 
 // container components
 export default class ClockContainer extends Component {
+    state = {
+        currentTick: 0,
+        secondRotation: 0,
+        minuteRotation: 0,
+        hourRotation: 0,
+    }
+
+    componentDidMount() {
+        this.timerID = setInterval(
+            () => this.tick(),
+            100
+        );
+    }
+
+    tick = () => {
+        const {
+            currentTick,
+            secondRotation,
+            minuteRotation,
+            hourRotation
+        } = this.state;
+
+        const nextTick = currentTick + 1;
+        const nextSecondRotation = secondRotation + 6;
+        const nextMinuteRotation = currentTick % 60 === 0 ? minuteRotation + 6: minuteRotation;
+        const nextHourRotation = currentTick % 3600 === 0 ? hourRotation + 6: hourRotation;
+
+        this.setState({
+            currentTick: nextTick,
+            secondRotation: nextSecondRotation,
+            minuteRotation: nextMinuteRotation,
+            hourRotation: nextHourRotation
+        });
+    }
+
     render() {
+        const { secondRotation, minuteRotation, hourRotation } = this.state;
+
         return (
             <Clock>
                 <Clock.Face>
-                    <Clock.SecondsHand />
-                    <Clock.MinutesHand />
-                    <Clock.HoursHand />
+                    <Clock.SecondsHand rotation={secondRotation} />
+                    <Clock.MinutesHand rotation={minuteRotation} />
+                    <Clock.HoursHand rotation={hourRotation} />
                 </Clock.Face>
             </Clock>
         );
